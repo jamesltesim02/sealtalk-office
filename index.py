@@ -3,6 +3,10 @@ from flask import Flask, render_template, request, session, redirect
 from controller.common import common
 from controller.user import user
 from config import config
+import sys
+
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 app = Flask(__name__,static_folder='assets')
 app.secret_key = b'_5#y2L"Faa4Q8z\n\xec]/'
