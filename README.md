@@ -4,3 +4,6 @@
 
 ### 配置文件
     ./config.py
+
+### 更新脚本
+    alter table users add userRole int(10) Null DEFAULT '0';
