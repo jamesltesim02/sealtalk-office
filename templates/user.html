@@ -1,298 +1,141 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="">
-  <meta name="author" content="Dashboard">
-  <meta name="keyword" content="Dashboard, Bootstrap, Admin, Template, Theme, Responsive, Fluid, Retina">
+{% extends "common/base.html" %}
+{% block content %}
+<h3><i class="fa fa-angle-right"></i> Basic Table Examples</h3>
+<div class="row mt">
+  <div class="col-md-12">
+    <div class="content-panel">
+      <table class="table table-striped table-advance table-hover">
+        <h4 class="condition-panel">
+          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+            <i class="fa fa-plus"></i>
+            添加用户
+          </button>
+          <input
+            id="keywordText"
+            type="text"
+            class="form-control"
+            placeholder="关键字"
+            value="{{request.args.get('keyword') or ''}}"
+          >
+          <select id="userRoleSelect" class="form-control">
+            {% for s in [
+              ['all', '全部用户角色'],
+              ['1', '管理员'],
+              ['0', '普通用户']
+            ]%}
+            <option
+              value="{{s[0]}}"
+              {% if s[0] == request.args.get('userRole')%}
+              selected
+              {% endif %}
+            >{{s[1]}}</option>
+            {% endfor %}
+          </select>
+          <button id="searchButton" type="submit" class="btn btn-theme">查询</button>
+        </h4>
+        <hr>
+        <thead>
+          <tr>
+            <th>账号</th>
+            <th>昵称</th>
+            <th>用户角色</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in users['data'] %}
+          <tr data-phone="{{user['phone']}}">
+            <td>{{user['phone']}}</td>
+            <td>{{user['nickname']}}</td>
+            <td>{{['普通用户', '管理员'][user['userRole']]}}</td>
+            <td>
+              <button class="btn btn-success btn-xs btn-resetpass">
+                <i class="fa fa-check"></i>
+                重置密码
+              </button>
+              <button class="btn btn-primary btn-xs btn-toggle-role" data-userrole="{{user['userRole']}}">
+                <i class="fa fa-pencil"></i>
+                {{['设置管理员', '取消管理员'][user['userRole']]}}
+              </button>
+              <button class="btn btn-danger btn-xs btn-delete">
+                <i class="fa fa-trash-o "></i>
+                删除
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <h4>
+        <div class="btn-group">
+            {% for i in range(1, users['page_count'] + 1) %}
+            <a
+              class="btn btn-{% if i != users['page'] %}default{% else %}primary{% endif %}"
+              {% if i != users['page'] %}
+                href="?keyword={{request.args.get('keyword') or ''}}&page={{i}}&userRole={{request.args.get('userRole') or 'all'}}"
+              {% endif %}
+            >{{i}}</a>
+            {% endfor %}
+          </div>
+      </h4>
+    </div><!-- /content-panel -->
+  </div><!-- /col-md-12 -->
+</div><!-- /row -->
+{% endblock %}
 
-  <title>DASHGUM - Bootstrap Admin Template</title>
-
-  <!-- Bootstrap core CSS -->
-  <link href="assets/css/bootstrap.css" rel="stylesheet">
-  <!--external css-->
-  <link href="assets/font-awesome/css/font-awesome.css" rel="stylesheet" />
-
-  <!-- Custom styles for this template -->
-  <link href="assets/css/style.css" rel="stylesheet">
-  <link href="assets/css/style-responsive.css" rel="stylesheet">
-
-  <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-  <!--[if lt IE 9]>
-    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-  <![endif]-->
-  <style>
-    .form-horizontal .control-label {
-      text-align: right;
-    }
-    
-    .form-horizontal.style-form .form-group:last-child {
-      border-bottom: 0;
-      margin-bottom: 0;
-    }
-
-    #messageText {
-      margin-bottom: 10px;
-      color: red;
-    }
-  </style>
-</head>
-
-<body>
-
-  <section id="container">
-    <!-- **********************************************************************************************************************************************************
-    TOP BAR CONTENT & NOTIFICATIONS
-    *********************************************************************************************************************************************************** -->
-    <!--header start-->
-    <header class="header black-bg">
-      <div class="sidebar-toggle-box">
-        <div class="fa fa-bars tooltips" data-placement="right" data-original-title="Toggle Navigation"></div>
+{% block modals %}
+<!-- Modal -->
+<div class="modal fade" id="myModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">添加用户</h4>
       </div>
-      <!--logo start-->
-      <a href="index.html" class="logo"><b>DASHGUM FREE</b></a>
-      <div class="top-menu">
-        <ul class="nav pull-right top-menu">
-          <li><a class="logout" href="login.html">Logout</a></li>
-        </ul>
+      <div class="modal-body">
+        <form class="form-horizontal style-form" method="get">
+          <div id="messageText"></div>
+          <div class="form-group">
+            <label class="col-sm-2 col-sm-2 control-label">账号:</label>
+            <div class="col-sm-10">
+              <input id="phoneText" type="text" class="form-control" maxlength="11">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 col-sm-2 control-label">密码:</label>
+            <div class="col-sm-10">
+              <input id="passwordText" type="text" class="form-control" value="aa123123" maxlength="20" readonly>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 col-sm-2 control-label">昵称:</label>
+            <div class="col-sm-10">
+              <input id="nicknameText" type="text" class="form-control" placeholder="" value="匿名用户" maxlength="32">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 col-sm-2 control-label">管理员:</label>
+            <div class="col-sm-10">
+              <div class="switch switch-square" data-on-label="<i class=' fa fa-check'></i>" data-off-label="<i class='fa fa-times'></i>">
+                <input id="userRoleBox" type="checkbox">
+              </div>
+            </div>
+          </div>
+        </form>
       </div>
-    </header>
-    <!--header end-->
-
-    <!-- **********************************************************************************************************************************************************
-    MAIN SIDEBAR MENU
-    *********************************************************************************************************************************************************** -->
-    <!--sidebar start-->
-    <aside>
-      <div id="sidebar" class="nav-collapse ">
-        <!-- sidebar menu start-->
-        <ul class="sidebar-menu" id="nav-accordion">
-
-          <p class="centered"><a href="profile.html"><img src="assets/img/ui-sam.jpg" class="img-circle" width="60"></a></p>
-          <h5 class="centered">{{ user['phone'] }}</h5>
-
-          <li class="mt">
-            <a href="index.html">
-              <i class="fa fa-dashboard"></i>
-              <span>Dashboard</span>
-            </a>
-          </li>
-
-          <li class="sub-menu">
-            <a href="#">
-              <i class="fa fa-desktop"></i>
-              <span>用户管理</span>
-            </a>
-            <ul class="sub">
-              <li><a href="/user">用户管理</a></li>
-              <li><a href="buttons.html">Buttons</a></li>
-              <li><a href="panels.html">Panels</a></li>
-            </ul>
-          </li>
-
-          <li class="sub-menu">
-            <a href="javascript:;">
-              <i class="fa fa-cogs"></i>
-              <span>Components</span>
-            </a>
-            <ul class="sub">
-              <li><a href="calendar.html">Calendar</a></li>
-              <li><a href="gallery.html">Gallery</a></li>
-              <li><a href="todo_list.html">Todo List</a></li>
-            </ul>
-          </li>
-          <li class="sub-menu">
-            <a href="javascript:;">
-              <i class="fa fa-book"></i>
-              <span>Extra Pages</span>
-            </a>
-            <ul class="sub">
-              <li><a href="blank.html">Blank Page</a></li>
-              <li><a href="login.html">Login</a></li>
-              <li><a href="lock_screen.html">Lock Screen</a></li>
-            </ul>
-          </li>
-          <li class="sub-menu">
-            <a href="javascript:;">
-              <i class="fa fa-tasks"></i>
-              <span>Forms</span>
-            </a>
-            <ul class="sub">
-              <li><a href="form_component.html">Form Components</a></li>
-            </ul>
-          </li>
-          <li class="sub-menu">
-            <a class="active" href="javascript:;">
-              <i class="fa fa-th"></i>
-              <span>Data Tables</span>
-            </a>
-            <ul class="sub">
-              <li class="active"><a href="basic_table.html">Basic Table</a></li>
-              <li><a href="responsive_table.html">Responsive Table</a></li>
-            </ul>
-          </li>
-          <li class="sub-menu">
-            <a href="javascript:;">
-              <i class=" fa fa-bar-chart-o"></i>
-              <span>Charts</span>
-            </a>
-            <ul class="sub">
-              <li><a href="morris.html">Morris</a></li>
-              <li><a href="chartjs.html">Chartjs</a></li>
-            </ul>
-          </li>
-
-        </ul>
-        <!-- sidebar menu end-->
-      </div>
-    </aside>
-    <!--sidebar end-->
-
-    <!-- **********************************************************************************************************************************************************
-    MAIN CONTENT
-    *********************************************************************************************************************************************************** -->
-    <!--main content start-->
-    <section id="main-content">
-      <section class="wrapper">
-        <h3><i class="fa fa-angle-right"></i> Basic Table Examples</h3>
-        <div class="row mt">
-          <div class="col-md-12">
-            <div class="content-panel">
-              <table class="table table-striped table-advance table-hover">
-                <h4>
-                  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
-                    <i class="fa fa-plus"></i>
-                    添加用户
-                  </button>
-                </h4>
-                <hr>
-                <thead>
-                  <tr>
-                    <th>账号</th>
-                    <th>昵称</th>
-                    <th>用户角色</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for user in users %}
-                  <tr data-phone="{{user['phone']}}">
-                    <td>{{user['phone']}}</td>
-                    <td>{{user['nickname']}}</td>
-                    <td>{{['普通用户', '管理员'][user['userRole']]}}</td>
-                    <td>
-                      <button class="btn btn-success btn-xs btn-resetpass">
-                        <i class="fa fa-check"></i>
-                        重置密码
-                      </button>
-                      <button
-                        class="btn btn-primary btn-xs btn-toggle-role"
-                        data-userrole="{{user['userRole']}}"
-                      >
-                        <i class="fa fa-pencil"></i>
-                        {{['设置管理员', '取消管理员'][user['userRole']]}}
-                      </button>
-                      <button class="btn btn-danger btn-xs btn-delete">
-                        <i class="fa fa-trash-o "></i>
-                        删除
-                      </button>
-                    </td>
-                  </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div><!-- /content-panel -->
-          </div><!-- /col-md-12 -->
-        </div><!-- /row -->
-      </section>
-      <! --/wrapper -->
-    </section><!-- /MAIN CONTENT -->
-  </section>
-
-  <!-- Modal -->
-  <div class="modal fade" id="myModal">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title" id="myModalLabel">添加用户</h4>
-        </div>
-        <div class="modal-body">
-          <form class="form-horizontal style-form" method="get">
-            <div id="messageText"></div>
-            <div class="form-group">
-              <label class="col-sm-2 col-sm-2 control-label">账号:</label>
-              <div class="col-sm-10">
-                <input
-                  id="phoneText"
-                  type="text"
-                  class="form-control"
-                  maxlength="11"
-                >
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="col-sm-2 col-sm-2 control-label">密码:</label>
-              <div class="col-sm-10">
-                <input
-                  id="passwordText"
-                  type="text"
-                  class="form-control"
-                  value="aa123123"
-                  maxlength="20"
-                  readonly
-                >
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="col-sm-2 col-sm-2 control-label">昵称:</label>
-              <div class="col-sm-10">
-                <input
-                  id="nicknameText"
-                  type="text"
-                  class="form-control"
-                  placeholder=""
-                  value="匿名用户"
-                  maxlength="32"
-                >
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="col-sm-2 col-sm-2 control-label">管理员:</label>
-              <div class="col-sm-10">
-                <div
-                  class="switch switch-square"
-                  data-on-label="<i class=' fa fa-check'></i>"
-                  data-off-label="<i class='fa fa-times'></i>"
-                >
-                  <input id="userRoleBox" type="checkbox" >
-                </div>
-              </div>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-          <button id="addSubmitButton" type="button" class="btn btn-primary">提交</button>
-        </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+        <button id="addSubmitButton" type="button" class="btn btn-primary">提交</button>
       </div>
     </div>
   </div>
+</div>
+{% endblock %}
 
-  <!-- js placed at the end of the document so the pages load faster -->
-  <script src="assets/js/jquery.js"></script>
-  <script src="assets/js/bootstrap.min.js"></script>
-  <script class="include" type="text/javascript" src="assets/js/jquery.dcjqaccordion.2.7.js"></script>
-  <script src="assets/js/jquery.scrollTo.min.js"></script>
-  <script src="assets/js/jquery.nicescroll.js" type="text/javascript"></script>
-	<!--custom switch-->
-	<script src="assets/js/bootstrap-switch.js"></script>
-
-  <!--common script for all pages-->
-  <script src="assets/js/common-scripts.js"></script>
-  <script>
+{% block scripts %}
+<!--custom switch-->
+<script src="assets/js/bootstrap-switch.js"></script>
+<script>
   jQuery(function ($) {
     var body = $(document.body);
     var phoneText = $('#phoneText');
@@ -301,35 +144,31 @@
     var userRoleBox = $('#userRoleBox');
     var addSubmitButton = $('#addSubmitButton');
     var messageText = $('#messageText');
+    var keywordText = $('#keywordText');
+    var userRoleSelect = $('#userRoleSelect');
+    var searchButton = $('#searchButton');
 
     addSubmitButton.click(function () {
       var phone = phoneText.val();
-      // var password = passwordText.val();
       var nickname = nicknameText.val();
       var userRole = userRoleBox.checked ? 1 : 0;
 
-      if(!/^13\d{9}$/.test(phone)) {
+      if (!/^1\d{10}$/.test(phone)) {
         messageText.html('账号必须为手机号码格式');
         return;
       }
-
-      // if(!/^.{4,20}$/.test(password)) {
-      //   messageText.html('密码必须为4~20位');
-      //   return;
-      // }
 
       $.ajax({
         url: '/user',
         type: 'POST',
         data: {
           phone: phone,
-          // password: password,
           nickname: nickname,
           userRole: userRole
         },
         dataType: 'json',
         success: function (result) {
-          if(result.status == 200) {
+          if (result.status == 200) {
             location.reload();
             return;
           }
@@ -338,13 +177,13 @@
         }
       });
     });
-    
+
     body.on('click', '.btn-delete', function () {
       var el = $(this);
       var row = el.closest('tr');
       var phone = row.data('phone');
 
-      if(!confirm('你确定要删除吗?')) {
+      if (!confirm('你确定要删除吗?')) {
         return;
       }
 
@@ -354,7 +193,7 @@
         dataType: 'json',
         success: function (result) {
           alert(result.msg);
-          if(result.status == 200) {
+          if (result.status == 200) {
             location.reload();
           }
         }
@@ -366,7 +205,7 @@
       var row = el.closest('tr');
       var phone = row.data('phone');
 
-      if(!confirm('你确定要重置该账号密码吗?')) {
+      if (!confirm('你确定要重置该账号密码吗?')) {
         return;
       }
 
@@ -399,14 +238,31 @@
         dataType: 'json',
         success: function (result) {
           alert(result.msg);
-          if(result.status == 200) {
+          if (result.status == 200) {
             location.reload();
           }
         }
       });
     });
-  });
-  </script>
-</body>
+  
+    function query(keyword, page, userRole) {
+      location = '/user?keyword=' + keyword + '&page=' + page + '&userRole=' + userRole;
+    }
+    searchButton.click(function () {
+      var kw = keywordText.val();
+      var userRole = userRoleSelect.val();
+      var page = '{{request.args.get("page") or "1"}}';
 
-</html>
+      if(kw !== '{{request.args.get("keyword") or ""}}'
+        || userRole !== '{{request.args.get("userRole") or "all"}}') {
+        page = 1;
+      }
+      query(
+        kw,
+        page,
+        userRole
+      )
+    });
+  });
+</script>
+{% endblock %}

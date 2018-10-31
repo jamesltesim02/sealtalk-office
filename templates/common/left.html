@@ -1,0 +1,64 @@
+<!--sidebar start-->
+<aside>
+  <div id="sidebar" class="nav-collapse ">
+    <!-- sidebar menu start-->
+    <ul class="sidebar-menu" id="nav-accordion">
+      <p class="centered">
+        <a href="profile.html">
+          <img src="assets/img/ui-sam.jpg" class="img-circle" width="60">
+        </a>
+      </p>
+      <h5 class="centered">{{ session.loged_user['username'] }}</h5>
+      {% for link in (
+        {
+          'url': '/index',
+          'text': '首页',
+          'icon': 'dashboard'
+        },
+        {
+          'url': '/user',
+          'text': '用户管理',
+          'icon': 'desktop'
+        }
+      ) %}
+      <li class="sub-menu">
+        <a
+          href="{{link.url}}"
+          {%if link.url == request.path %}
+            class="active"
+          {% endif %}
+        >
+          <i class="fa fa-{{link.icon}}"></i>
+          <span>{{link.text}}</span>
+        </a>
+      </li>
+      {% endfor %}
+<!-- 
+      <li class="sub-menu">
+        <a href="#">
+          <i class="fa fa-desktop"></i>
+          <span>用户管理</span>
+        </a>
+        <ul class="sub">
+          <li><a href="/user">用户管理</a></li>
+          <li><a href="#">预留页面</a></li>
+          <li><a href="#">预留页面</a></li>
+        </ul>
+      </li>
+
+      <li class="sub-menu">
+        <a href="javascript:;">
+          <i class="fa fa-cogs"></i>
+          <span>预留页面</span>
+        </a>
+        <ul class="sub">
+          <li><a href="#">预留页面</a></li>
+          <li><a href="#">预留页面</a></li>
+          <li><a href="#">预留页面</a></li>
+        </ul>
+      </li> -->
+    </ul>
+    <!-- sidebar menu end-->
+  </div>
+</aside>
+<!--sidebar end-->

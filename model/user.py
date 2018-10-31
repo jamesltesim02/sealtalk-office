@@ -16,13 +16,44 @@ def login(username, password):
 
   return user_info
 
-def all():
+def all(keyword='', userRole='all', page=1, row_num=10):
   sql = """
     select * 
     from users
-    where deletedAt is null
+    where 
+      deletedAt is null
   """
-  return dbhelper.execute_query(sql)
+  count_sql = """
+    select count(1) as data_count
+    from users
+    where 
+      deletedAt is null
+  """
+
+  params = []
+  if keyword:
+    sql += ' and (phone like %s or nickname like %s)'
+    count_sql += ' and (phone like %s or nickname like %s)'
+    params.append('%' + keyword + '%')
+    params.append('%' + keyword + '%')
+
+  if userRole != 'all':
+    sql += ' and userRole = %s'
+    count_sql += ' and userRole = %s'
+    params.append(userRole)
+
+  sql += (' order by createdAt desc limit %s, %s' % (((page - 1) * row_num), row_num))
+
+  count = dbhelper.execute_query(count_sql, params, single=True)['data_count']
+  result = dbhelper.execute_query(sql, params)
+
+  return {
+    'count': count,
+    'page': page,
+    'row_num': row_num,
+    'page_count': int((count + row_num - 1) / row_num),
+    'data': result
+  }
 
 def get(phone):
   sql = """
@@ -47,20 +78,18 @@ def add(region, phone, password, salt, nickname, userRole):
       updatedAt
     )
     values(
-      %s,
-      %s,
-      %s,
-      %s,
-      %s,
+      '%s',
+      '%s',
+      '%s',
+      '%s',
+      '%s',
       %d,
       %d,
       %d,
-      %s,
-      %s
+      '%s',
+      '%s'
     )
-  """
-
-  dbhelper.execute_update(sql,(
+  """ % (
     region,
     phone,
     nickname,
@@ -71,7 +100,9 @@ def add(region, phone, password, salt, nickname, userRole):
     int(userRole),
     datetime.now(),
     datetime.now()
-  ))
+  )
+
+  dbhelper.execute_update(sql)
 
 def delete(phone):
   sql = """

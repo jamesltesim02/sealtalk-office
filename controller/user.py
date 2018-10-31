@@ -33,20 +33,26 @@ def doLogin():
 
 @user.route('/user')
 def user_index():
-  user_list = userModel.all()
-  user_info = session["loged_user"]
-  return render_template('user.html', users = user_list, user = user_info)
+  (
+    keyword,
+    page,
+    userRole
+  ) = (
+    request.args.get('keyword'),
+    request.args.get('page'),
+    request.args.get('userRole') or 'all'
+  )
+  user_result = userModel.all(keyword, userRole, int(page or '1'))
+  return render_template('user.html', users = user_result)
 
 @user.route('/user', methods=['POST'])
 def add():
   (
     phone,
-    # password,
     nickname,
     userRole
   ) = (
     request.form['phone'],
-    # request.form['password'],
     request.form['nickname'],
     request.form['userRole']
   )
