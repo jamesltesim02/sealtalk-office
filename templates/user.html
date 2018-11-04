@@ -1,6 +1,6 @@
 {% extends "common/base.html" %}
 {% block content %}
-<h3><i class="fa fa-angle-right"></i> Basic Table Examples</h3>
+<h3><i class="fa fa-angle-right"></i>用户管理</h3>
 <div class="row mt">
   <div class="col-md-12">
     <div class="content-panel">
@@ -39,6 +39,8 @@
             <th>账号</th>
             <th>昵称</th>
             <th>用户角色</th>
+            <th>创建时间</th>
+            <th>时间</th>
             <th></th>
           </tr>
         </thead>
@@ -48,6 +50,7 @@
             <td>{{user['phone']}}</td>
             <td>{{user['nickname']}}</td>
             <td>{{['普通用户', '管理员'][user['userRole']]}}</td>
+            <td>{{user['createdAt']}}</td>
             <td>
               <button class="btn btn-success btn-xs btn-resetpass">
                 <i class="fa fa-check"></i>
@@ -67,6 +70,7 @@
         </tbody>
       </table>
       <h4>
+        共 {{users['count']}} 条
         <div class="btn-group">
             {% for i in range(1, users['page_count'] + 1) %}
             <a
